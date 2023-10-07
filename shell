@@ -1,0 +1,94 @@
+#!/bin/bash
+
+#cadmin part
+
+# Lab part 3
+
+# Check if OpenSSL is installed
+if ! command -v openssl &> /dev/null; then
+            echo "OpenSSL is not installed. Installing now..."
+                                        sudo apt-get install openssl  # Replace with the appropriate package manager command
+                                            if [ $? -eq 0 ]; then
+                                                            echo "OpenSSL has been successfully installed."
+                                                                else
+                                                                                echo "Failed to install OpenSSL. Please install it manually."
+                                                                                    fi
+                                                                            else
+                                                                                        echo "OpenSSL is already installed."
+fi
+
+# Check if hexedit is installed
+if ! command -v hexedit &> /dev/null; then
+    echo "hexedit is not installed. Installing now..."
+    sudo apt-get install hexedit  # Replace with the appropriate package manager command
+    if [ $? -eq 0 ]; then
+        echo "hexedit has been successfully installed."
+    else
+        echo "Failed to install hexedit. Please install it manually."
+    fi
+else
+    echo "hexedit is already installed."
+fi
+
+
+echo "0123456789abcdefghijklmnopqrstuvwxyz" > plain.txt
+openssl genrsa --aes128 -out private.pem
+openssl rsa -pubout -in private.pem -out public.pem -outform pem
+openssl rsa -in private.pem -out private1.pem -outform pem
+openssl rand -base64 32 > key.bin
+openssl enc -aes-256-cbc -salt -in plain.txt -out cipher.enc -pass file:./key.bin
+openssl rsautl -encrypt -inkey public.pem -pubin -in key.bin -out key.bin.enc
+openssl rsautl -decrypt -inkey private1.pem -in key.bin.enc -out key.dec.bin
+openssl enc -d -aes-256-cbc -in cipher.enc -out plain.txt -pass file:./key.dec.bin
+
+# cadmin lab part 2
+
+openssl enc -nosalt -aes-256-ecb  -e -in plain.txt -out enc.bin -k 1234
+cp enc.bin corrupted.bin
+hexedit corrupted.bin
+
+echo "Great Job !"
+openssl enc -nosalt -aes-128-ecb -d -in corrupted.bin -out corrupted.txt -k 1234
+cat corrupted.txt
+echo "this is how your corrupted text looks now we used AES to encrypt this information"
+
+sleep 5
+
+openssl enc -nosalt -aes-128-cbc -e -in plain.txt -out enc.bin -k 1234
+cp enc.bin corrupted_cbc.bin
+hexedit corrupted_cbc.bin
+
+echo "Great Job !"
+openssl enc -nosalt -aes-128-cbc -d -in corrupted_cbc.bin -out corrupted_cbc.txt -k 1234
+cat corrupted_cbc.txt
+echo "this is how your corrupted text looks now we used CBC to encrypt this information"
+
+sleep 5
+
+openssl enc -nosalt -aes-128-ofb -e -in plain.txt -out enc.bin -k 1234
+cp enc.bin corrupted_ofb.bin
+hexedit corrupted_ofb.bin
+
+echo "Great Job !"
+openssl enc -nosalt -aes-128-ofb -d -in corrupted_ofb.bin -out corrupted_ofb.txt -k 1234
+cat corrupted_ofb.txt
+echo "this is how your corrupted text looks now we used OFB to encrypt this information"
+
+
+# Part 1
+
+if [ -e "iu.bmp" ]; then
+    echo "The 'iu.bmp' image exists in the current directory."
+else
+    echo "The 'iu.bmp' image does not exist in the current directory."
+fi
+
+# Encrypt using ECB
+head -c 54 iu.bmp > temp_ecb.bmp
+openssl enc -nosalt -aes-128-ecb -e -in iu.bmp -out enc.bin -k 1234
+tail -c 3858000 enc.bin >> temp_ecb.bmp
+
+#Encrypt using cbc
+head -c 54 iu.bmp > temp_cbc.bmp
+openssl enc -nosalt -aes-128-cbc -e -in iu.bmp -out enc.bin -k 1234
+tail -c 3858000 enc.bin >> temp_cbc.bmp

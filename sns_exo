@@ -1,0 +1,94 @@
+#!/bin/bash
+
+# The beginning, download iu logo
+
+curl -JLO 'https://drive.google.com/uc?export=download&id=1pmUUv__gG6vwmyY35dtFnm71l-JyiSO5'
+scp iu.bmp cadmin@192.168.122.188:~/
+
+
+# Check if the "iu.bmp" image exists
+if [ -e "iu.bmp" ]; then
+    echo "The 'iu.bmp' image exists in the current directory."
+
+    # Get the size of the image
+    size=$(stat -c %s "iu.bmp")
+    echo "Size of 'iu.bmp': $size bytes"
+else
+    echo "The 'iu.bmp' image does not exist in the current directory."
+fi
+
+
+
+#Lab Part 3
+
+mkdir -p snsL3
+
+scp cadmin@192.168.122.188:/home/cadmin/private.pem ./snsL3
+scp cadmin@192.168.122.188:/home/cadmin/private1.pem ./snsL3
+scp cadmin@192.168.122.188:/home/cadmin/public.pem ./snsL3
+scp cadmin@192.168.122.188:/home/cadmin/key.bin ./snsL3
+scp cadmin@192.168.122.188:/home/cadmin/key.bin.enc ./snsL3
+scp cadmin@192.168.122.188:/home/cadmin/plain.txt ./snsL3
+scp cadmin@192.168.122.188:/home/cadmin/cipher.enc ./snsL3
+
+# Lab part 2
+
+scp cadmin@192.168.122.188:/home/cadmin/corrupted.txt ./snsL3
+scp cadmin@192.168.122.188:/home/cadmin/corrupted_cbc.txt ./snsL3
+scp cadmin@192.168.122.188:/home/cadmin/corrupted_ofb.txt ./snsL3
+
+#Lab 1
+scp cadmin@192.168.122.188:/home/cadmin/temp_ecb.bmp ./snsL3
+scp cadmin@192.168.122.188:/home/cadmin/temp_cbc.bmp ./snsL3
+
+if ! command -v sxiv &> /dev/null; then
+    echo "sxiv is not installed. Installing now..."
+    sudo apt-get install sxiv  # Replace with the appropriate package manager command
+    if [ $? -eq 0 ]; then
+        echo "sxiv has been successfully installed."
+    else
+        echo "Failed to install sxiv. Please install it manually."
+    fi
+else
+    echo "sxiv is already installed."
+fi
+
+# Lab part 3
+files_to_check=(
+    "./snsL3/private.pem"
+    "./snsL3/private1.pem"
+    "./snsL3/public.pem"
+    "./snsL3/key.bin"
+    "./snsL3/key.bin.enc"
+    "./snsL3/plain.txt"
+    "./snsL3/cipher.enc"
+)
+
+# Check if each file exists
+for file in "${files_to_check[@]}"; do
+    if [ -e "$file" ]; then
+        echo "$file exists (Part 3)."
+    else
+        echo "$file does not exist (Part 3)."
+    fi
+done
+
+# Lab part 2
+# Define an array of file paths to check for Lab part 2
+files_to_check_lab2=(
+    "./snsL3/corrupted.txt"
+    "./snsL3/corrupted_cbc.txt"
+    "./snsL3/corrupted_ofb.txt"
+)
+
+# Check if each Lab part 2 file exists
+for file in "${files_to_check_lab2[@]}"; do
+    if [ -e "$file" ]; then
+        echo "$file exists (Part 2)."
+    else
+        echo "$file does not exist (Part 2)."
+    fi
+done
+
+
+#Lab1 image checker
