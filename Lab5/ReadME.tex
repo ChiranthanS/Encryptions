@@ -1,0 +1,57 @@
+\documentclass{article}
+
+\begin{document}
+
+\title{SSL/TLS Certificate Setup Script README}
+\author{Your Name}
+\date{\today}
+
+\maketitle
+
+\section{Introduction}
+
+This document provides instructions and information for using the SSL/TLS Certificate Setup Script. The script is designed to automate the process of setting up a Certificate Authority (CA) and configuring SSL/TLS certificates for secure communication in a multi-machine environment.
+
+\section{Prerequisites}
+
+Before using the script, ensure the following prerequisites are met:
+
+\begin{itemize}
+    \item Both the CA server and client server must have SSH access enabled.
+    \item You should have sudo privileges on both machines.
+\end{itemize}
+
+\section{Usage}
+
+To use the script, follow these steps:
+
+\begin{enumerate}
+    \item Clone this repository and navigate to the script's directory.
+    
+    \item Modify the \texttt{folder\_names} array to specify the directories you want to create on the CA server.
+
+    \item Execute the script, and it will perform the following tasks:
+
+    \begin{itemize}
+        \item Create the main CA folder on the CA server.
+        \item Create specified folders within the CA directory.
+        \item Generate a self-signed CA certificate on the CA server.
+        \item Generate a certificate signing request (CSR) on the client server.
+        \item Transfer the CSR to the CA server.
+        \item Move the CSR to the CA's request folder.
+        \item Copy the private key to the CA's private folder.
+        \item Use the CA to sign the client's certificate.
+        \item Transfer the signed certificate and CA certificate to the client server.
+        \item Configure Apache to accept SSL/TLS connections on the client server.
+    \end{itemize}
+\end{enumerate}
+
+\section{Notes}
+
+\begin{itemize}
+    \item This script is provided as a template and should be adapted to your specific environment and requirements.
+    \item Ensure that you have a secure SSH connection and proper authentication.
+    \item Review and customize the script for security and compliance with your organization's policies.
+\end{itemize}
+
+\end{document}
