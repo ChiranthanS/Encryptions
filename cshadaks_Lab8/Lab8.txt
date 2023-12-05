@@ -1,0 +1,145 @@
+root@i520-server:~# echo "iptables before"
+iptables before
+root@i520-server:~# iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+root@i520-server:~# echo "Block all inbound and outbound ICMP traffic"
+Block all inbound and outbound ICMP traffic
+root@i520-server:~# iptables -A INPUT -p icmp -j DROP
+root@i520-server:~# iptables -A OUTPUT -p icmp -j DROP
+root@i520-server:~# iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+DROP       icmp --  anywhere             anywhere
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+DROP       icmp --  anywhere             anywhere
+root@i520-server:~#
+root@i520-server:~#
+root@i520-server:~# iptables-save > /root/lab8/iptables0.txt
+root@i520-server:~#
+root@i520-server:~# echo "Block all inbound and outbound UDP traffic except DNS"
+Block all inbound and outbound UDP traffic except DNS
+root@i520-server:~# iptables -A INPUT -p udp --sport 53 -j ACCEPT
+T -p udp --dport 53 -j ACCEPT
+iptables -A INPUT -p udp -j DROP
+iptables -A OUTPUT -p udp -j DROProot@i520-server:~# iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+root@i520-server:~# iptables -A INPUT -p udp -j DROP
+root@i520-server:~# iptables -A OUTPUT -p udp -j DROP
+root@i520-server:~# iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+DROP       icmp --  anywhere             anywhere
+ACCEPT     udp  --  anywhere             anywhere             udp spt:domain
+DROP       udp  --  anywhere             anywhere
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+DROP       icmp --  anywhere             anywhere
+ACCEPT     udp  --  anywhere             anywhere             udp dpt:domain
+DROP       udp  --  anywhere             anywhere
+root@i520-server:~# iptables-save > /root/lab8/iptables1.txt
+root@i520-server:~#
+root@i520-server:~# echo "Deny outbound HTTP and HTTPS traffic except to luddy.indiana.edu"
+Deny outbound HTTP and HTTPS traffic except to luddy.indiana.edu
+root@i520-server:~# iptables -A OUTPUT -p tcp --dport 80 -d 129.79.123.143 -j ACCEPT
+root@i520-server:~# iptables -A OUTPUT -p tcp --dport 443 -d 129.79.123.143 -j ACCEPT
+root@i520-server:~# iptables -A OUTPUT -p tcp --dport 80 -j DROP
+root@i520-server:~# iptables -A OUTPUT -p tcp --dport 443 -j DROP
+root@i520-server:~# iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+DROP       icmp --  anywhere             anywhere
+ACCEPT     udp  --  anywhere             anywhere             udp spt:domain
+DROP       udp  --  anywhere             anywhere
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+DROP       icmp --  anywhere             anywhere
+ACCEPT     udp  --  anywhere             anywhere             udp dpt:domain
+DROP       udp  --  anywhere             anywhere
+ACCEPT     tcp  --  anywhere             129.79.123.143       tcp dpt:http
+
+ACCEPT     tcp  --  anywhere             129.79.123.143       tcp dpt:https
+DROP       tcp  --  anywhere             anywhere             tcp dpt:http
+DROP       tcp  --  anywhere             anywhere             tcp dpt:https
+root@i520-server:~#
+root@i520-server:~# iptables-save > /root/lab8/iptables2.txt
+root@i520-server:~# echo "Allow inbound HTTP traffic from your client VM but not your host machine"
+Allow inbound HTTP traffic from your client VM but not your host machine
+root@i520-server:~# iptables -A INPUT -p tcp --sport 80 -s 192.168.122.188 -j ACCEPT
+root@i520-server:~# iptables -A INPUT -p tcp --sport 80 -j DROP
+root@i520-server:~# iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+DROP       icmp --  anywhere             anywhere
+ACCEPT     udp  --  anywhere             anywhere             udp spt:domain
+DROP       udp  --  anywhere             anywhere
+
+ACCEPT     tcp  --  192.168.122.188      anywhere             tcp spt:http
+DROP       tcp  --  anywhere             anywhere             tcp spt:http
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+DROP       icmp --  anywhere             anywhere
+ACCEPT     udp  --  anywhere             anywhere             udp dpt:domain
+DROP       udp  --  anywhere             anywhere
+ACCEPT     tcp  --  anywhere             129.79.123.143       tcp dpt:http
+ACCEPT     tcp  --  anywhere             129.79.123.143       tcp dpt:https
+DROP       tcp  --  anywhere             anywhere             tcp dpt:http
+DROP       tcp  --  anywhere             anywhere             tcp dpt:https
+root@i520-server:~#
+root@i520-server:~# iptables-save > /root/lab8/iptables3.txt
+root@i520-server:~#
+root@i520-server:~# echo "Block all inbound TCP traffic except SSH, HTTP, and HTTPS"
+Block all inbound TCP traffic except SSH, HTTP, and HTTPS
+root@i520-server:~# iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+root@i520-server:~# iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+root@i520-server:~# iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+root@i520-server:~# iptables -A INPUT -p tcp -j DROP
+root@i520-server:~# iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+DROP       icmp --  anywhere             anywhere
+ACCEPT     udp  --  anywhere             anywhere             udp spt:domain
+DROP       udp  --  anywhere             anywhere
+ACCEPT     tcp  --  192.168.122.188      anywhere             tcp spt:http
+DROP       tcp  --  anywhere             anywhere             tcp spt:http
+ACCEPT     tcp  --  anywhere             anywhere             tcp dpt:ssh
+ACCEPT     tcp  --  anywhere             anywhere             tcp dpt:http
+ACCEPT     tcp  --  anywhere             anywhere             tcp dpt:https
+DROP       tcp  --  anywhere             anywhere
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+DROP       icmp --  anywhere             anywhere
+ACCEPT     udp  --  anywhere             anywhere             udp dpt:domain
+DROP       udp  --  anywhere             anywhere
+ACCEPT     tcp  --  anywhere             129.79.123.143       tcp dpt:http
+ACCEPT     tcp  --  anywhere             129.79.123.143       tcp dpt:https
+DROP       tcp  --  anywhere             anywhere             tcp dpt:http
+DROP       tcp  --  anywhere             anywhere             tcp dpt:https
+root@i520-server:~# iptables-save > /root/lab8/iptables4.txt
+root@i520-server:~#
